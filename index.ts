@@ -1,7 +1,6 @@
 import crypto from 'node:crypto';
 
-
-function generate_key_pair() {
+export function generate_key_pair() {
     const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
         modulusLength: 2048,
         publicKeyEncoding: {
@@ -16,25 +15,38 @@ function generate_key_pair() {
     return { publicKey, privateKey };
 }
 
-const alice_keys = generate_key_pair();
-const bob_keys = generate_key_pair();
+export function encrypt(publicKey: string, message: string): Buffer {
+    return crypto.publicEncrypt(
+        publicKey,
+        Buffer.from(message)
+    );
+}
 
-// They will share their public keys with each other
+export function decrypt(privateKey: string, encryptedMessage: Buffer): string {
+    const decrypted_message = crypto.privateDecrypt(
+        privateKey,
+        encryptedMessage
+    );
+    return decrypted_message.toString();
+}
 
-const message = "Hello, How are you?";
+// Example usage
+if (process.env.NODE_ENV !== 'test') {
+    const alice_keys = generate_key_pair();
+    const bob_keys = generate_key_pair();
 
-// Alice will use Bob's public key to encrypt the message
-const encrypted_message = crypto.publicEncrypt(
-    bob_keys.publicKey,
-    Buffer.from(message)
-);
+    // They will share their public keys with each other
 
-console.log("Encrypted message: ", encrypted_message.toString("base64"));
+    const message = "Hello, How are you?";
 
-// Bob will use his private key to decrypt the message
-const decrypted_message = crypto.privateDecrypt(
-    bob_keys.privateKey,
-    encrypted_message
-);
+    // Alice will use Bob's public key to encrypt the message
+    const encrypted_message = encrypt(bob_keys.publicKey, message);
 
-console.log("Decrypted message: ", decrypted_message.toString());
+    console.log("Encrypted message: ", encrypted_message.toString("base64"));
+
+    // Bob will use his private key to decrypt the message
+    const decrypted_message = decrypt(bob_keys.privateKey, encrypted_message);
+
+    console.log("Decrypted message: ", decrypted_message.toString());
+}
+
