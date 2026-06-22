@@ -57,10 +57,6 @@ Decrypted message:  Hello, How are you?
 - Node.js (v18+ recommended)
 - TypeScript
 
-## License
-
-This project does not specify a license.
-
 ## Author
 
 - [manishsencha](https://github.com/manishsencha)
